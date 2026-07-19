@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio — Video / Vlog / Game</title>
+
+<!-- 폰트: 영문은 Bodoni Moda(시네마틱한 고대비 세리프), 한글은 Pretendard -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,700;0,6..96,900;1,6..96,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+<style>
+/* =========================================================
+   0. 디자인 토큰 (색·간격·폰트 변수)
+   ========================================================= */
+:root {
+  --bg:        #1c1a17;          /* 기존 딥블랙에서 한 톤 밝고 부드러운 다크 그레이로 변경 */
+  --bg-soft:   #25231f;          /* 카드 배경색 톤업 */
+  --bg-elev:   #2f2c27;          /* 떠있는 표면색 톤업 */
+  --line:      rgba(244, 237, 224, 0.18); /* 배경이 밝아진 만큼 선명하게 투명도 올림 */
+  --line-bold: rgba(244, 237, 224, 0.40); /* 굵은 선 투명도 올림 */
+
+  --text:      #f4ede0;          
+  --text-mute: #999388;          /* 텍스트도 살짝 더 밝게 */
+  --text-dim:  #6b655b;
+  /* 아래 포인트 컬러 등은 그대로 유지하세요 */
+
+  --accent:    #ff5430;          /* 비밀리언 레드(필름 클래퍼 컬러) */
+  --accent-soft: #ff8866;
+
+  --serif: "Bodoni Moda", "Pretendard", serif;
+  --sans:  "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono:  "JetBrains Mono", ui-monospace, monospace;
+
+  --maxw: 1320px;
+  --pad:  clamp(20px, 4vw, 56px);
+}
+
+/* =========================================================
+   1. 리셋 & 베이스
+   ========================================================= */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img, video, iframe { display: block; max-width: 100%; }
+li { list-style: none; }
+a  { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+/* 미세한 필름 그레인 — 전체 페이지에 깔리는 노이즈 텍스처 */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 200;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* =========================================================
+   2. 헤더 / 네비게이션
+   ========================================================= */
+header.site-header {
+  position: fixed; top: 0; left: 0;
+  width: 100%; z-index: 100;
+  padding: 20px var(--pad);
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(180deg, rgba(13,12,10,0.85) 0%, rgba(13,12,10,0) 100%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.site-header .logo {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+.site-header .logo span { color: var(--accent); }
+
+.site-header nav ul {
+  display: flex; gap: 36px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.site-header nav a {
+  position: relative;
+  padding: 4px 0;
+  color: var(--text-mute);
+  transition: color 0.3s ease;
+}
+.site-header nav a:hover { color: var(--text); }
+.site-header nav a::after {
+  content: ""; position: absolute; left: 0; bottom: 0;
+  width: 0; height: 1px; background: var(--accent);
+  transition: width 0.35s ease;
+}
+.site-header nav a:hover::after { width: 100%; }
+
+/* =========================================================
+   3. 히어로(인트로) — 배경영상
+   ========================================================= */
+.hero {
+  position: relative;
+  width: 100%; height: 100vh;
+  overflow: hidden;
+}
+.hero__video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.hero__veil {
+  position: absolute; inset: 0;
+  /* 기존보다 검은색 투명도를 낮춰서 영상이 더 맑게 보이도록 수정 */
+  background:
+    radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(28,26,23,0.7) 90%),
+    linear-gradient(180deg, rgba(28,26,23,0.2) 0%, rgba(28,26,23,0) 30%, rgba(28,26,23,0.85) 100%);
+  z-index: -1;
+}
+.hero__content {
+  position: relative; z-index: 1;
+  height: 100%;
+  padding: 0 var(--pad);
+  padding-bottom: 140px; /* 하단 움직이는 띠와 겹치지 않도록 안전 여백 */
+  display: flex; flex-direction: column; justify-content: flex-end; /* 정중앙(center)에서 하단(flex-end)으로 변경 */
+  max-width: var(--maxw); margin: 0 auto;
+}
+.hero__eyebrow {
+  font-family: var(--mono);
+  font-size: 12px; letter-spacing: 0.3em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  display: flex; align-items: center; gap: 16px;
+}
+.hero__eyebrow::before {
+  content: ""; width: 40px; height: 1px; background: var(--accent);
+}
+.hero__title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(56px, 11vw, 180px);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  max-width: 14ch;
+}
+.hero__title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+.hero__subtitle {
+  margin-top: 32px;
+  max-width: 480px;
+  font-size: 16px;
+  color: var(--text-mute);
+  line-height: 1.7;
+}
+/* 하단 가로 스크롤 마퀴 */
+.hero__marquee {
+  position: absolute; bottom: 0; left: 0; width: 100%;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: rgba(13,12,10,0.6);
+  overflow: hidden;
+  z-index: 2;
+}
+.hero__marquee-track {
+  display: flex;
+  gap: 60px;
+  padding: 18px 0;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--text-mute);
+}
+.hero__marquee-track span { display: flex; align-items: center; gap: 60px; }
+.hero__marquee-track span::after {
+  content: "✦"; color: var(--accent); font-style: normal; font-size: 14px;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* 스크롤 표시(우측 세로) */
+.hero__scroll {
+  position: absolute; right: var(--pad); bottom: 90px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--text-mute);
+  writing-mode: vertical-rl;
+  display: flex; align-items: center; gap: 14px;
+  z-index: 2;
+}
+.hero__scroll::after {
+  content: ""; width: 1px; height: 60px;
+  background: linear-gradient(180deg, var(--text-mute) 0%, transparent 100%);
+  animation: scrollPulse 2.2s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50%      { opacity: 1;   transform: scaleY(1.3); transform-origin: top; }
+}
+
+/* =========================================================
+   4. 공통 섹션 레이아웃
+   ========================================================= */
+section.page-section {
+  padding: 140px var(--pad) 100px;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  position: relative;
+}
+.section-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 24px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 64px;
+}
+.section-head__index {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 18px;
+}
+.section-head__title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(48px, 8vw, 112px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+.section-head__title em {
+  font-style: italic;
+  color: var(--accent-soft);
+}
+.section-head__meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  text-align: right;
+}
+
+/* =========================================================
+   5. ABOUT 섹션
+   ========================================================= */
+#about .about-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.about-lede {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(22px, 2.4vw, 32px);
+  line-height: 1.45;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.about-lede::first-letter {
+  font-size: 1.6em;
+  color: var(--accent);
+}
+.about-meta {
+  font-size: 14px;
+}
+.about-meta dl {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 18px 24px;
+}
+.about-meta dt {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+.about-meta dd {
+  color: var(--text);
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+  line-height: 1.6;
+}
+
+/* =========================================================
+   6. WORK — 필터 탭 + 작품 카드 그리드 (핵심 영역)
+   ========================================================= */
+.work-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 56px;
+  align-items: center;
+}
+.work-filters .filter-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  margin-right: 8px;
+}
+.filter-btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-mute);
+  transition: all 0.25s ease;
+}
+.filter-btn:hover { color: var(--text); border-color: var(--line-bold); }
+.filter-btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  font-weight: 500;
+}
+.filter-btn .count {
+  margin-left: 8px;
+  opacity: 0.55;
+  font-size: 10px;
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 40px 32px;
+  grid-auto-flow: dense;
+}
+
+/* --- 카테고리 그룹 및 경계선 --- */
+.work-group {
+  margin-bottom: 80px; /* 그룹 간의 넓은 여백 */
+  animation: modalFade 0.4s ease;
+}
+.work-group.is-hidden {
+  display: none; /* 필터 클릭 시 숨김 처리 */
+}
+.work-group__header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.work-group__title {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent); /* 비밀리언 레드 포인트 컬러 */
+}
+.work-group__line {
+  flex: 1;
+  height: 1px;
+  background: var(--line-bold);
+}
+
+/* --- 작품 카드 ---
+   12-칼럼 그리드 위에서 카드 크기를 다양화:
+   .span-6 (절반), .span-12 (전체 폭, featured), .span-4 (1/3)
+   기본은 span-6
+*/
+.work-card {
+  grid-column: span 6;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.work-card.span-12 { grid-column: span 12; }
+.work-card.span-4  { grid-column: span 4; }
+.work-card:hover { transform: translateY(-6px); }
+
+.work-card__media {
+  position: relative;
+  aspect-ratio: 16 / 9;        /* 모든 미디어는 16:9 시네마틱 비율 */
+  background: var(--bg-soft);
+  overflow: hidden;
+  border-radius: 2px;
+  isolation: isolate;
+}
+.work-card.span-12 .work-card__media { aspect-ratio: 21 / 9; }  /* featured: 시네스코프 */
+
+.work-card__media > video,
+.work-card__media > img,
+.work-card__media > iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border: 0;
+  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.work-card:hover .work-card__media > video,
+.work-card:hover .work-card__media > img {
+  transform: scale(1.04);
+}
+
+/* 미디어 위에 떠 있는 카테고리 배지 */
+.work-card__badge {
+  position: absolute; top: 16px; left: 16px;
+  z-index: 2;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  background: rgba(13,12,10,0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.work-card__badge.is-ad   { color: var(--accent); border-color: var(--accent); }
+.work-card__badge.is-vlog { color: #f4ede0; }
+.work-card__badge.is-game { color: #6ee7b7; border-color: rgba(110,231,183,0.4); }
+
+/* 영상에 살짝 비네팅 */
+.work-card__media::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.45) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 카드 텍스트 */
+.work-card__info { display: flex; flex-direction: column; gap: 8px; }
+.work-card__meta {
+  display: flex; gap: 14px; align-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--text-mute);
+  text-transform: uppercase;
+}
+.work-card__meta .dot { width: 3px; height: 3px; background: var(--text-dim); border-radius: 50%; }
+.work-card__title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(24px, 2.2vw, 32px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+}
+.work-card:hover .work-card__title { color: var(--accent); }
+.work-card__title em { font-style: italic; }
+.work-card__desc {
+  font-size: 14px;
+  color: var(--text-mute);
+  line-height: 1.6;
+  max-width: 60ch;
+}
+
+/* 필터 시 숨기는 카드 */
+.work-card.is-hidden { display: none; }
+
+/* =========================================================
+   7. CONTACT
+   ========================================================= */
+#contact .contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: end;
+}
+.contact-cta {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(32px, 4.5vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.contact-cta a {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transition: opacity 0.2s;
+}
+.contact-cta a:hover { opacity: 0.7; }
+.contact-list {
+  font-size: 14px;
+  display: grid;
+  gap: 18px;
+}
+.contact-list .row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.contact-list dt {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.contact-list dd { color: var(--text); }
+
+/* =========================================================
+   8. 푸터
+   ========================================================= */
+footer.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 28px var(--pad);
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+/* =========================================================
+   9. 반응형
+   ========================================================= */
+@media (max-width: 900px) {
+  .site-header nav ul { gap: 18px; }
+  .site-header nav { font-size: 11px; }
+  .hero__scroll { display: none; }
+  #about .about-grid { grid-template-columns: 1fr; gap: 48px; }
+  #contact .contact-grid { grid-template-columns: 1fr; gap: 36px; }
+  .work-card,
+  .work-card.span-12,
+  .work-card.span-4 { grid-column: span 12; }
+  .section-head { grid-template-columns: 1fr; }
+  .section-head__meta { text-align: left; }
+}
+@media (max-width: 560px) {
+  .site-header { padding: 16px 20px; }
+  .site-header nav ul { display: none; } /* 모바일: 간소화 */
+  .work-grid { gap: 32px 16px; }
+  .hero__marquee-track { font-size: 16px; gap: 36px; }
+  .hero__marquee-track span { gap: 36px; }
+}
+
+/* =========================================================
+   10. 진입 애니메이션 (페이지 로드 시 히어로 텍스트 등장)
+   ========================================================= */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero__eyebrow  { animation: riseIn 0.9s 0.2s both cubic-bezier(0.2, 0.7, 0.2, 1); }
+.hero__title    { animation: riseIn 1.1s 0.35s both cubic-bezier(0.2, 0.7, 0.2, 1); }
+.hero__subtitle { animation: riseIn 1.0s 0.55s both cubic-bezier(0.2, 0.7, 0.2, 1); }
+/* =========================================================
+   11. 라이트박스 모달 — 카드 클릭 시 영상/이미지 풀뷰
+   ========================================================= */
+
+/* 클릭 가능한 카드임을 시각적으로 알려주는 재생 아이콘.
+   영상/유튜브가 들어 있는 카드에만 JS가 동적으로 삽입합니다. */
+.work-card__play-hint {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.85);
+  z-index: 3;
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  background: rgba(13, 12, 10, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(244, 237, 224, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+  pointer-events: none;
+}
+.work-card__play-hint::after {
+  /* CSS만으로 그린 삼각형 재생 아이콘 */
+  content: "";
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 10px 0 10px 16px;
+  border-color: transparent transparent transparent var(--text);
+  margin-left: 4px;
+}
+.work-card:hover .work-card__play-hint {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.work-card:hover .work-card__play-hint {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.work-card:hover .work-card__play-hint::after {
+  border-left-color: var(--bg);
+}
+
+/* 모달 자체: 화면 전체를 덮는 어두운 베일 */
+.media-modal {
+  position: fixed; inset: 0;
+  z-index: 300;
+  background: rgba(13, 12, 10, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: none;            /* 평소엔 숨김 */
+  align-items: center;
+  justify-content: center;
+  padding: 80px var(--pad) 60px;
+}
+.media-modal.is-open {
+  display: flex;
+  animation: modalFade 0.35s ease both;
+}
+@keyframes modalFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* 모달 안 콘텐츠 박스: 영상/이미지가 들어가는 자리 */
+.media-modal__content {
+  position: relative;
+  width: min(1280px, 100%);
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid var(--line-bold);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+  animation: modalScale 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes modalScale {
+  from { opacity: 0; transform: scale(0.95) translateY(24px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+.media-modal__content > video,
+.media-modal__content > iframe,
+.media-modal__content > img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  background: #000;
+  border: 0;
+  display: block;
+}
+
+/* 모달 캡션(작품 제목): 영상 아래에 작게 표시 */
+.media-modal__caption {
+  position: absolute;
+  bottom: -44px; left: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+/* 닫기 버튼: 모달 오른쪽 위에 떠 있는 동그라미 */
+.media-modal__close {
+  position: absolute;
+  top: -56px; right: 0;
+  width: 44px; height: 44px;
+  border: 1px solid var(--line-bold);
+  border-radius: 50%;
+  color: var(--text);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+.media-modal__close:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  transform: rotate(90deg);
+}
+
+/* 모달이 열려 있는 동안에는 페이지 본문 스크롤을 막음 (JS에서 body에 클래스를 더함) */
+body.modal-open { overflow: hidden; }
+</style>
+</head>
+<body>
+
+<!-- ================================================
+     헤더
+     ================================================ -->
+<header class="site-header">
+  <a href="#top" class="logo">Portfolio<span>.</span></a>
+  <nav>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ================================================
+     HERO — 배경영상 (video/intro.mp4)
+     ================================================ -->
+
+<section class="hero" id="top"> 
+<video class="hero__video" autoplay loop muted playsinline poster="images/hero-poster.jpg"> <source src="video/intro.mp4" type="video/mp4">
+</video>
+  <div class="hero__veil"></div>
+
+  <div class="hero__content">
+    <div class="hero__eyebrow">Portfolio — 2026 / Reel</div>
+    <h1 class="hero__title">Moving<br><em>pictures,</em><br>made&nbsp;here.</h1>
+    <p class="hero__subtitle">
+      광고, 브이로그, 그리고 게임 — 영상으로 이야기를 짓는 일을 합니다.
+      아래로 내려가 작품을 확인해 보세요.
+    </p>
+  </div>
+
+  <aside class="hero__scroll">Scroll</aside>
+
+  <!-- 하단 마퀴 -->
+  <div class="hero__marquee">
+    <div class="hero__marquee-track">
+      <span>Ad Films</span><span>Vlog</span><span>Game Reviews</span><span>Gameplay</span><span>Motion</span>
+      <span>Ad Films</span><span>Vlog</span><span>Game Reviews</span><span>Gameplay</span><span>Motion</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================
+     ABOUT
+     ================================================ -->
+<section class="page-section" id="about">
+  <header class="section-head">
+    <div>
+      <span class="section-head__index">01 — About</span>
+      <h2 class="section-head__title">Who&nbsp;I&nbsp;am, <em>briefly.</em></h2>
+    </div>
+    <div class="section-head__meta">Based in Gimpo, KR<br>Available for projects</div>
+  </header>
+
+  <div class="about-grid">
+    <p class="about-lede">
+      광고와 브이로그, 그리고 게임 콘텐츠 사이를 오가며
+      움직이는 화면을 설계합니다. 한 장면 한 장면이
+      관객의 시선을 어디로 이끄는지에 가장 많은 시간을 씁니다.
+    </p>
+
+    <div style="margin-top: 32px;">
+      <a href="pdf/신라면 AI 스토리보드.pdf" target="_blank" class="filter-btn is-active" style="display: inline-block; text-decoration: none;">
+        📄 스토리보드 보기
+      </a>
+    </div>
+
+    <div class="about-meta">
+      <dl>
+        <dt>Email</dt>         <dd>tsukik8@gmail.com</dd>
+        <dt>Course</dt>        <dd>멀티미디어콘텐츠 제작전문가과정 수료예정</dd>
+        <dt>Focus</dt>         <dd>광고 · 브이로그 · 게임 리뷰/플레이</dd>
+        <dt>Toolkit</dt>       <dd>Premiere Pro · After Effects · Photoshop · Illustrator · Capcut</dd>
+        <dt>Code</dt>          <dd>HTML / CSS / VS Code</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================
+     WORK — 작품 그리드 (핵심 영역)
+     ▼ 이 영역이 카드만 복사해서 채워넣는 자리입니다.
+     ================================================ -->
+<section class="page-section" id="work">
+  <header class="section-head">
+    <div>
+      <span class="section-head__index">02 — Selected Work</span>
+      <h2 class="section-head__title">Recent&nbsp;<em>frames.</em></h2>
+    </div>
+    <div class="section-head__meta">Filter by category<br>↓</div>
+  </header>
+
+  <!-- 카테고리 필터 -->
+  <div class="work-filters" role="tablist">
+    <span class="filter-label">Filter /</span>
+    <button class="filter-btn is-active" data-filter="all">전체</button>
+    <button class="filter-btn" data-filter="ad">광고</button>
+    <button class="filter-btn" data-filter="vlog">브이로그</button>
+    <button class="filter-btn" data-filter="game">게임</button>
+  </div>
+
+  <!-- ▼▼▼ 작품 카드 그리드 ▼▼▼ -->
+  <div class="work-groups-container">
+
+    <div class="work-group" data-group="ad">
+      <div class="work-group__header">
+        <h3 class="work-group__title">01 / Ad Films</h3>
+        <div class="work-group__line"></div>
+      </div>
+      <div class="work-grid">
+        
+        <article class="work-card span-12" data-category="ad" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-ad">광고 · Featured</span>
+            <video src="video/cocacolaV1.mp4" autoplay muted loop playsinline></video>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>Ad Film</span><span class="dot"></span>
+              <span>Coca-Cola Zero</span><span class="dot"></span>
+              <span>2026</span>
+            </div>
+            <h3 class="work-card__title">Coca-Cola Zero — <em>vs Pepsi</em></h3>
+            <p class="work-card__desc">
+              "인생은 코-크를 알기 전과 후로 나뉜다"는 카피를 중심으로, 갤러리 연출·모션 타이포·컨트리볼 스타일 2D 애니메이션을 섞어 코카콜라 제로의 압도적 승리를 33초에 담은 비교 광고.
+            </p>
+          </div>
+        </article>
+
+        <article class="work-card" data-category="ad" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-ad">광고</span>
+            <video src="video/project-hailmery-intro.mp4" autoplay muted loop playsinline></video>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>Stills</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">영화 예고편 — <em>편집</em></h3>
+            <p class="work-card__desc">태양이 죽어가고 있다. 과연 인류는 실마리를 찾을 수 있을 것 인가?</p>
+          </div>
+        </article>
+
+        <article class="work-card" data-category="ad" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-ad">광고 · AI</span>
+            <video src="video/onlinesin.mp4" autoplay muted loop playsinline></video>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>AI Film</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">AI광고 — <em>Generated Ad</em></h3>
+            <p class="work-card__desc">생성형 AI 툴로 제작한 광고 영상. 프롬프트 기획부터 편집까지. 로봇들은 어떤 이유로 같은 라면을 두고 토론하는가</p>
+          </div>
+        </article>
+
+        <article class="work-card" data-category="ad" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-ad">광고</span>
+            <video src="video/버거킹광고.mp4" autoplay muted loop playsinline></video>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>AI Film</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">광고 — <em>모션 그래픽</em></h3>
+            <p class="work-card__desc">버거킹 앱 광고와 더불어 멤버십 등급을 소개</p>
+          </div>
+        </article>
+
+        <article class="work-card" data-category="ad" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-ad">광고</span>
+            <video src="video/월드컵홍보영상.mp4" autoplay muted loop playsinline></video>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>AI Film</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">광고 — <em>모션 그래픽</em></h3>
+            <p class="work-card__desc">2026 중남미 월드컵을 기념하여 대한민국 대표팀의 승리를 기원합니다.</p>
+          </div>
+        </article>
+
+        <article class="work-card" data-category="ad" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-ad">광고</span>
+            <video src="video/0709.mov" autoplay muted loop playsinline></video>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>AI Film</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">광고 — <em>Generated Ad</em></h3>
+            <p class="work-card__desc">컬리 앱의 광고를 작업하였습니다. 여러 카테고리 와 배송과정의 전체 간소화로 상품이 전해지는 과정을 담았습니다.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+
+    <div class="work-group" data-group="vlog">
+      <div class="work-group__header">
+        <h3 class="work-group__title">02 / Vlog</h3>
+        <div class="work-group__line"></div>
+      </div>
+      <div class="work-grid">
+        
+        <article class="work-card" data-category="vlog" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-vlog">브이로그</span>
+            <video src="video/cat-vlog-nari.mp4" autoplay muted loop playsinline></video>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>Daily Vlog</span><span class="dot"></span><span>Cat — Nari</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">Daily — <em>with Nari</em></h3>
+            <p class="work-card__desc">고양이 들과의 평범한 일상과 내용을 이야기 하는 브이로그 형식의 숏폼영상</p>
+          </div>
+        </article>
+
+        <article class="work-card" data-category="vlog" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-vlog">브이로그</span>
+            <video src="video/cat-vlog-ari.mp4" autoplay muted loop playsinline></video>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>Daily Vlog</span><span class="dot"></span><span>Cat — Ari</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">Daily — <em>with Ari</em></h3>
+            <p class="work-card__desc">고양이 들과의 평범한 일상과 내용을 이야기 하는 브이로그 형식의 숏폼영상</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+
+    <div class="work-group" data-group="game">
+      <div class="work-group__header">
+        <h3 class="work-group__title">03 / Game</h3>
+        <div class="work-group__line"></div>
+      </div>
+      <div class="work-grid">
+        
+        <article class="work-card span-4" data-category="game" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-game">게임 · Teaser</span>
+            <video src="video/cyber2077.mov" autoplay muted loop playsinline></video>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>Title Teaser</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">사이버펑크 2077 — <em>게임 Teaser</em></h3>
+            <p class="work-card__desc">꺼지지 않는 네온과 의체의 도시, 나이트 시티 — 그 끝에서 당신의 전설이 시작된다. 에프터 이펙트 효과로 느낌을 더한 아웃트로와 사이버펑크의 첫인상을 담은 느낌을 재해석한 게임 예고편 타이틀.</p>
+          </div>
+        </article>
+
+        <article class="work-card span-4" data-category="game" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-game">게임</span>
+            <iframe src="" title="게임 숏폼 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>Review</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">Game Review #02</h3>
+            <p class="work-card__desc">게임 리뷰 영상. 인서트 컷 + 자막 디자인.</p>
+          </div>
+        </article>
+
+        <article class="work-card span-4" data-category="game" tabindex="0" role="button">
+          <div class="work-card__media">
+            <span class="work-card__badge is-game">게임</span>
+            <iframe src="" title="게임 숏폼 3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          </div>
+          <div class="work-card__info">
+            <div class="work-card__meta">
+              <span>Gameplay</span><span class="dot"></span><span>2026</span>
+            </div>
+            <h3 class="work-card__title">Gameplay Short #03</h3>
+            <p class="work-card__desc">하이라이트 모음. 비트에 맞춘 컷 편집.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- ▼ 새 작품 추가는 여기 아래에 위 템플릿을 붙여 넣으세요 ▼ -->
+
+
+  </div>
+  <!-- ▲▲▲ 작품 카드 그리드 끝 ▲▲▲ -->
+</section>
+
+
+<!-- ================================================
+     CONTACT
+     ================================================ -->
+<section class="page-section" id="contact">
+  <header class="section-head">
+    <div>
+      <span class="section-head__index">03 — Contact</span>
+      <h2 class="section-head__title">Let's&nbsp;<em>talk.</em></h2>
+    </div>
+    <div class="section-head__meta">Open for collaboration<br>2026 →</div>
+  </header>
+
+  <div class="contact-grid">
+    <p class="contact-cta">
+      프로젝트 의뢰는<br>
+      <a href="mailto:tsukik8@gmail.com">tsukik8@gmail.com</a> 으로.
+    </p>
+
+    <dl class="contact-list">
+      <div class="row"><dt>Email</dt>     <dd>tsukik8@gmail.com</dd></div>
+      <div class="row"><dt>Kakao</dt>     <dd>tsukik@naver.com</dd></div>
+      <div class="row"><dt>Phone</dt>     <dd>010-5524-0799</dd></div>
+      <div class="row"><dt>Location</dt>  <dd>경기도 김포시 장기동, KR</dd></div>
+    </dl>
+  </div>
+</section>
+
+
+<!-- ================================================
+     FOOTER
+     ================================================ -->
+<footer class="site-footer">
+  <span>© 2026 Portfolio</span>
+  <span>All rights reserved.</span>
+</footer>
+
+<!-- ================================================
+     라이트박스 모달 — 카드 클릭 시 사용됨
+     평소엔 display:none. JS가 .is-open 클래스를 토글.
+     ================================================ -->
+<div class="media-modal" id="mediaModal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="media-modal__content" id="mediaModalContent">
+    <!-- JS가 여기에 <video> / <iframe> / <img> 중 하나를 삽입 -->
+    <button class="media-modal__close" id="mediaModalClose" aria-label="닫기">✕</button>
+    <div class="media-modal__caption" id="mediaModalCaption"></div>
+  </div>
+</div>
+
+
+<!-- ================================================
+     JS — 카테고리 필터 동작
+     ================================================ -->
+<script>
+(function () {
+  const buttons = document.querySelectorAll('.filter-btn');
+  const cards   = document.querySelectorAll('.work-card');
+
+  // 각 필터별 개수를 카운트해서 버튼에 표시
+  const counts = { all: cards.length, ad: 0, vlog: 0, game: 0 };
+  cards.forEach(c => {
+    const cat = c.dataset.category;
+    if (counts[cat] !== undefined) counts[cat]++;
+  });
+  buttons.forEach(btn => {
+    const f = btn.dataset.filter;
+    if (counts[f] !== undefined) {
+      const c = document.createElement('span');
+      c.className = 'count';
+      c.textContent = String(counts[f]).padStart(2, '0');
+      btn.appendChild(c);
+    }
+  });
+
+  // 필터 클릭 핸들러
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // 1. 버튼 색상 활성화
+      buttons.forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+
+      const filter = btn.dataset.filter;
+      
+      // 2. 선택한 카테고리에 맞춰 그룹 숨기기/보이기
+      const groups = document.querySelectorAll('.work-group');
+      groups.forEach(group => {
+        const match = (filter === 'all') || (group.dataset.group === filter);
+        group.classList.toggle('is-hidden', !match);
+      });
+
+      // 3. 필터 클릭 시 작품 영역 최상단으로 부드럽게 스크롤 이동
+      const workSection = document.getElementById('work');
+      if (workSection) {
+        workSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+})(); 
+</script>
+<script>
+(function () {
+  /* ────────────────────────────────────────────────────
+     라이트박스 동작
+     - 카드 클릭 → 모달 열기
+     - 닫기 버튼 / 바깥 클릭 / ESC 키 → 닫기
+     - 영상(mp4)이면 controls + 소리 ON으로 재생
+     - 유튜브 임베드면 URL에 autoplay=1 추가
+     - 이미지면 그냥 크게 띄움
+     ──────────────────────────────────────────────────── */
+
+  const modal       = document.getElementById('mediaModal');
+  const modalBox    = document.getElementById('mediaModalContent');
+  const modalClose  = document.getElementById('mediaModalClose');
+  const modalCap    = document.getElementById('mediaModalCaption');
+  const cards       = document.querySelectorAll('.work-card');
+
+  // 영상/유튜브 카드에 재생 아이콘을 동적으로 추가 (이미지 카드엔 안 붙임)
+  cards.forEach(card => {
+    const mediaBox = card.querySelector('.work-card__media');
+    if (!mediaBox) return;
+    if (mediaBox.querySelector('video, iframe')) {
+      const hint = document.createElement('div');
+      hint.className = 'work-card__play-hint';
+      mediaBox.appendChild(hint);
+    }
+  });
+
+  // 그리드의 모든 미리보기 영상 (모달 열 때 일시정지용)
+  const previewVideos = document.querySelectorAll('.work-card__media video');
+
+  function openModal(card) {
+    const video  = card.querySelector('.work-card__media video');
+    const iframe = card.querySelector('.work-card__media iframe');
+    const img    = card.querySelector('.work-card__media img');
+    const title  = card.querySelector('.work-card__title')?.textContent.trim() || '';
+
+    // 모달 내용 초기화 (닫기 버튼과 캡션은 유지)
+    [...modalBox.querySelectorAll('video, iframe, img')].forEach(el => el.remove());
+
+    let mediaEl;
+    if (video) {
+      // mp4 영상: 사운드 켜고 컨트롤 표시
+      mediaEl = document.createElement('video');
+      mediaEl.src = video.currentSrc || video.src;
+      mediaEl.controls = true;
+      mediaEl.autoplay = true;
+      mediaEl.playsInline = true;
+    } else if (iframe) {
+      // 유튜브: 기존 URL에 autoplay=1 파라미터를 추가해 자동 재생
+      const url = new URL(iframe.src);
+      url.searchParams.set('autoplay', '1');
+      url.searchParams.set('rel', '0');
+      mediaEl = document.createElement('iframe');
+      mediaEl.src = url.toString();
+      mediaEl.setAttribute('frameborder', '0');
+      mediaEl.setAttribute('allow',
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+      mediaEl.setAttribute('allowfullscreen', '');
+    } else if (img) {
+      // 정지 이미지: 그대로 크게 표시
+      mediaEl = document.createElement('img');
+      mediaEl.src = img.src;
+      mediaEl.alt = img.alt || '';
+    } else {
+      return; // 미디어가 하나도 없으면 모달 열지 않음
+    }
+
+    // 새 미디어는 닫기 버튼/캡션보다 앞쪽(가장 처음)에 삽입
+    modalBox.insertBefore(mediaEl, modalBox.firstChild);
+    modalCap.textContent = title;
+
+    // 그리드 영상들 일시정지 (리소스 절약 + 시각적 정리)
+    previewVideos.forEach(v => v.pause());
+
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeModal() {
+    // 모달 안의 video/iframe을 제거해서 재생을 확실히 중단 (사운드 끊김)
+    [...modalBox.querySelectorAll('video, iframe, img')].forEach(el => el.remove());
+    modalCap.textContent = '';
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+
+    // 그리드 미리보기 영상 재개
+    previewVideos.forEach(v => v.play().catch(() => {}));
+  }
+
+  // 카드 클릭 → 모달 열기
+  cards.forEach(card => {
+    card.addEventListener('click', () => openModal(card));
+  });
+
+  // 닫기: 버튼 / 모달 바깥(베일) 클릭 / ESC 키
+  modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+  });
+})();
+</script>
+</body>
+</html>
