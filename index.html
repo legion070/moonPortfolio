@@ -1154,7 +1154,8 @@ body.modal-open { overflow: hidden; }
     // 모달 내용 초기화 (닫기 버튼과 캡션은 유지)
     [...modalBox.querySelectorAll('video, iframe, img')].forEach(el => el.remove());
 
-    let ;
+    let mediaEl; //
+
     if (video) {
       // mp4 영상: 사운드 켜고 컨트롤 표시
       mediaEl = document.createElement('video');
@@ -1164,6 +1165,7 @@ body.modal-open { overflow: hidden; }
       mediaEl.playsInline = true;
       mediaEl.volume = 0.25;   // 기본 음량 25%
     } else if (iframe) {
+       
       // 유튜브: 기존 URL에 autoplay=1 파라미터를 추가해 자동 재생
       const url = new URL(iframe.src);
       url.searchParams.set('autoplay', '1');
